@@ -85,7 +85,7 @@ var getRandomData = function (arr) {
  *
  * @param {number} min Минимальное число
  * @param {number} max Максимальное число
- * @return {{number}} Случаное число
+ * @return {number} Случайное число
  */
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -103,8 +103,8 @@ var isExistInArray = function (value, arr) {
     if (arr[i] === value) {
       return true;
     }
-    return false;
   }
+  return false;
 };
 
 /**
@@ -115,8 +115,7 @@ var isExistInArray = function (value, arr) {
  */
 var getRandomArrFromArr = function (arr) {
   var newArr = [];
-  var firstIndex = 0;
-  var newArrLength = getRandomNumber(firstIndex, arr.length);
+  var newArrLength = getRandomNumber(0, arr.length);
 
   for (var i = 0; i < newArrLength; i++) {
     var currentValue = getRandomData(arr);
@@ -130,6 +129,51 @@ var getRandomArrFromArr = function (arr) {
 };
 
 /**
+ * Возвращает первый элемент из массива, а затем удаляет его, сокращая массив
+ *
+ * @param {Array} arr Массив
+ * @return {*} Первый элемент массива
+ */
+var getUniqueValue = function (arr) {
+  // Временная переменная которая хранит первый элемент массива
+  var temp = arr[0];
+  arr.splice(0, 1);
+  return temp;
+};
+
+/**
+ * Собирает обьявление по шаблону
+ *
+ * @return {Object}
+ */
+var createNewOffer = function () {
+  return {
+    'author': {
+      'avatar': getUniqueValue(authorAvatars)
+    },
+
+    'offer': {
+      'title': getRandomData(offerTitles),
+      'address': getRandomData(offerAddresses),
+      'price': getRandomData(offerPrices),
+      'type': getRandomData(offerTypes),
+      'rooms': getRandomData(offerRooms),
+      'guests': getRandomData(offerGuests),
+      'checkin': getRandomData(offerCheckins),
+      'checkout': getRandomData(offerCheckouts),
+      'features': getRandomArrFromArr(offerFeatures),
+      'description': getRandomData(offerDescriptions),
+      'photos': getRandomArrFromArr(offerPhotos)
+    },
+
+    'location': {
+      'x': getRandomNumber(minLeftPosition, minRightPosition),
+      'y': getRandomNumber(minTopPosition, minBottomPosition)
+    }
+  };
+};
+
+/**
  * Создает массив с обьявлениями в виде обьектов
  *
  * @param {number} numOfOffers Колличество обьявлений, которое нужно добавить в массив
@@ -138,33 +182,7 @@ var getRandomArrFromArr = function (arr) {
 var createArrFromOffers = function (numOfOffers) {
   var arr = [];
   for (var i = 0; i < numOfOffers; i++) {
-    // Шаблон обьявления
-    var offer = {
-      'author': {
-        'avatar': getRandomData(authorAvatars)
-      },
-
-      'offer': {
-        'title': getRandomData(offerTitles),
-        'address': getRandomData(offerAddresses),
-        'price': getRandomData(offerPrices),
-        'type': getRandomData(offerTypes),
-        'rooms': getRandomData(offerRooms),
-        'guests': getRandomData(offerGuests),
-        'checkin': getRandomData(offerCheckins),
-        'checkout': getRandomData(offerCheckouts),
-        'features': getRandomArrFromArr(offerFeatures),
-        'description': getRandomData(offerDescriptions),
-        'photos': getRandomArrFromArr(offerPhotos)
-      },
-
-      'location': {
-        'x': getRandomNumber(minLeftPosition, minRightPosition),
-        'y': getRandomNumber(minTopPosition, minBottomPosition)
-      }
-    };
-
-    arr.push(offer);
+    arr.push(createNewOffer());
   }
   return arr;
 };
@@ -181,7 +199,8 @@ window.addEventListener('DOMContentLoaded', function () {
   var mapPinsElement = document.querySelector('.map__pins');
 
   // Шаблон метки
-  var mapPinTemplate = document.querySelector('#pin')
+  var mapPinTemplate = document
+    .querySelector('#pin')
     .content
     .querySelector('.map__pin');
 
