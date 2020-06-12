@@ -76,7 +76,7 @@ var pinHeight = 70;
  * @param {Array} arr Массив в которм ищем элемент
  * @return {*} Случайный элемент массива
  */
-var getRandomData = function(arr) {
+var getRandomData = function (arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
