@@ -76,7 +76,7 @@ var pinHeight = 70;
  * @param {Array} arr Массив в которм ищем элемент
  * @return {*} Случайный элемент массива
  */
-var getRandomData = function (arr) {
+var getRandomData = function(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
@@ -179,7 +179,24 @@ var createArrFromOffers = function (numOfOffers) {
  * @param {number} minBottomPos Минимальная позиция снизу на карте
  * @return {Object}
  */
-var createNewOffer = function (avatars, titles, addresses, prices, types, rooms, guests, checkins, checkouts, features, descriptions, photos, minLeftPos, minRightPos, minTopPos, minBottomPos) {
+var createNewOffer = function (
+    avatars,
+    titles,
+    addresses,
+    prices,
+    types,
+    rooms,
+    guests,
+    checkins,
+    checkouts,
+    features,
+    descriptions,
+    photos,
+    minLeftPos,
+    minRightPos,
+    minTopPos,
+    minBottomPos
+) {
   return {
     'author': {
       'avatar': getUniqueValue(avatars)
@@ -262,15 +279,15 @@ window.addEventListener('DOMContentLoaded', function () {
    * @return {string} Тип жилья на русском
    */
   var translateOfferType = function (type) {
-    if (type === 'flat') {
-      return 'Квартира';
-    } else if (type === 'bungalo') {
-      return 'Бунгало';
-    } else if (type === 'house') {
-      return 'Дом';
-    } else {
-      return 'Дворец';
+    switch (type) {
+      case 'flat':
+        return 'Квартира';
+      case 'bungalo':
+        return 'Бунгало';
+      case 'house':
+        return 'Дом';
     }
+    return 'Дворец';
   };
 
   /**
