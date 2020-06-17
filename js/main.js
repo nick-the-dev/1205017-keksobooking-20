@@ -244,10 +244,10 @@ window.addEventListener('DOMContentLoaded', function () {
     .querySelector('.map__pin');
 
   // Шаблон карточки обьявления
-  var cardTemplate = document
+  /* var cardTemplate = document
     .querySelector('#card')
     .content
-    .querySelector('.map__card');
+    .querySelector('.map__card'); */
 
   // Элемент списка меток на карте
   var mapPinsElement = document.querySelector('.map__pins');
@@ -428,12 +428,13 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  /**
+  /*
+  /!**
    * Переводит тип жилья с английского на русский
    *
    * @param {string} type Тип жилья на английском
    * @return {string} Тип жилья на русском
-   */
+   *!/
   var translateOfferType = function (type) {
     switch (type) {
       case 'flat':
@@ -446,12 +447,12 @@ window.addEventListener('DOMContentLoaded', function () {
     return 'Дворец';
   };
 
-  /**
+  /!**
    * Добавляет особенности жилья на карточку обьявления
    *
    * @param {Array} features Список особенностей жилья
    * @param {Object} card Карточка обьявления
-   */
+   *!/
   var addFeaturesToCard = function (features, card) {
     var featuresList = card.querySelector('.popup__features');
     var wifi = '<li class="popup__feature popup__feature--wifi"></li>';
@@ -490,12 +491,12 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  /**
+  /!**
    * Вставляет фотографии обьявления из массива в карточку обьявления
    *
    * @param {Array} photos Массив с фотографиями обьявления
    * @param {Object} card Карточка обьявления
-   */
+   *!/
   var addPhotosToCard = function (photos, card) {
     // Содержит родительский элемент фотографий в карточке
     var photosList = card.querySelector('.popup__photos');
@@ -517,11 +518,11 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  /**
+  /!**
    * Создает карточку обьявления на основе шаблона в HTML
    *
    * @param {Array} arr Массив со всеми обьявлениями
-   */
+   *!/
   var buildCard = function (arr) {
     // Содержит первый элемент массива с обьявлениями
     var firstCard = arr[0];
@@ -545,7 +546,7 @@ window.addEventListener('DOMContentLoaded', function () {
     cardElement.querySelector('.popup__avatar').src = firstCard.author.avatar;
 
     map.insertBefore(cardElement, filtersContainer);
-  };
+  };*/
 
   disableMap();
   // buildCard(offers);
