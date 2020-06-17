@@ -64,11 +64,20 @@ var minTopPosition = 130;
 // Крайняя нижняя координата на карте
 var minBottomPosition = 630;
 
-// Ширина метки
-var pinWidth = 50;
+// Ширина метки обьявления
+var PIN_WIDTH = 50;
 
-// Высота метки
-var pinHeight = 70;
+// Высота метки обьявления
+var PIN_HEIGHT = 70;
+
+// Ширина центральной метки в неактивном состоянии
+var MAIN_PIN_UNACTIVE_WIDTH = 62;
+
+// Высота центральной метки в неактивном состоянии
+var MAIN_PIN_UNACTIVE_HEIGHT = 62;
+
+// Высота указателя центральной метки
+var MAIN_PIN_POINTER_HEIGHT = 22;
 
 /**
  * Возвращает случайный элемент из массива
@@ -228,49 +237,196 @@ var offers = createArrFromOffers(offersToShow);
 
 // Выполняет код после загрузки DOM
 window.addEventListener('DOMContentLoaded', function () {
-  // Удаляем класс .map--faded у элемента с классом .map
-  document.querySelector('.map').classList.remove('map--faded');
-
-  // Элемент списка меток на карте
-  var mapPinsElement = document.querySelector('.map__pins');
-
   // Шаблон метки
   var mapPinTemplate = document
     .querySelector('#pin')
     .content
     .querySelector('.map__pin');
 
-  /**
-   * Отображает метку на карте на основе обьекта обьявления
-   *
-   * @param {Object} pin Обьект обьявления
-   * @return {Node} Возвращает разметку метки
-   */
-  var renderPin = function (pin) {
-    // Содержит разметку метки
-    var pinElement = mapPinTemplate.cloneNode(true);
-
-    pinElement.style = 'left: ' + (offers[i].location.x - pinWidth / 2) + 'px; top: ' + (pin.location.y - pinHeight) + 'px;';
-    pinElement.querySelector('img').src = pin.author.avatar;
-    pinElement.querySelector('img').alt = pin.offer.title;
-
-    return pinElement;
-  };
-
-  // Фрагмент, в который добавляем все метки перед отприсовкой на странице
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 0; i < offers.length; i++) {
-    fragment.appendChild(renderPin(offers[i]));
-  }
-
-  mapPinsElement.appendChild(fragment);
-
   // Шаблон карточки обьявления
   var cardTemplate = document
     .querySelector('#card')
     .content
     .querySelector('.map__card');
+
+  // Элемент списка меток на карте
+  var mapPinsElement = document.querySelector('.map__pins');
+
+  // Центральная метка (триггер активации карты);
+  var mainMapPin = mapPinsElement.querySelector('.map__pin--main');
+
+  // Форма обьявления
+  var form = document.querySelector('.ad-form');
+
+  // Поля для заполнения в форме обьявления
+  var formInputs = form.querySelectorAll('input, select, textarea');
+
+  // Форма, содержащая фильтры обьявлений
+  var mapFilters = document.querySelector('.map__filters');
+
+  // Поля фильтра обьявлений
+  var mapFiltersList = mapFilters.querySelectorAll('input, select');
+
+  // Выключает все поля ввода у формы
+  var disableMap = function () {
+    for (var i = 0; i < formInputs.length; i++) {
+      formInputs[i].setAttribute('disabled', '');
+    }
+
+    for (var j = 0; j < mapFiltersList.length; j++) {
+      mapFiltersList[j].setAttribute('disabled', '');
+    }
+  };
+
+  /**
+   * Выдает координаты центральной метки на карте в неактивном состоянии
+   *
+   * @param {Object} pin Метка
+   * @param {number} width Ширина метки
+   * @param {number} height Высота метки
+   * @return {string} Координаты метки на карте
+   */
+  var getPinUnactiveLocation = function (pin, width, height) {
+    var locationX = parseInt(pin.style.left, 10) + Math.round(width / 2);
+    var locationY = parseInt(pin.style.top, 10) + Math.round(height / 2);
+
+    return locationX + ', ' + locationY;
+  };
+
+  /**
+   * Выдает координаты центральной метки на карте в активном состоянии
+   *
+   * @param {Object} pin Метка
+   * @param {number} width Ширина метки
+   * @param {number} height Высота метки
+   * @param {number} pointerHeight Высота указателя метки
+   * @return {string} Координаты метки на карте
+   */
+  var getPinActiveLocation = function (pin, width, height, pointerHeight) {
+    var locationX = parseInt(pin.style.left, 10) + Math.round(width / 2);
+    var locationY = parseInt(pin.style.top, 10) + height + pointerHeight;
+
+    return locationX + ', ' + locationY;
+  };
+
+  /**
+   * Вставляет координаты метки в поле адреса
+   *
+   * @param {string} location Строка с координатами метки
+   */
+  var insertPinLocation = function (location) {
+    var addressInput = document.querySelector('#address');
+
+    addressInput.value = location;
+  };
+
+  // Вставляем координаты метки в неактивном состоянии карты
+  insertPinLocation(getPinUnactiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT));
+
+  // Функция активации карты
+  var activateMap = function () {
+    // Убираем атрибут disabled у всех полей ввода в форме заполнения обьявления
+    for (var l = 0; l < formInputs.length; l++) {
+      formInputs[l].removeAttribute('disabled');
+    }
+
+    // Убираем атрибут disabled у всех полей ввода в фильтре обьявлений
+    for (var j = 0; j < mapFiltersList.length; j++) {
+      mapFiltersList[j].removeAttribute('disabled');
+    }
+
+    // Удаляем класс .map--faded у элемента с классом .map
+    document.querySelector('.map').classList.remove('map--faded');
+
+    /**
+     * Отображает метку на карте на основе обьекта обьявления
+     *
+     * @param {Object} pin Обьект обьявления
+     * @return {Node} Возвращает разметку метки
+     */
+    var renderPin = function (pin) {
+      // Содержит разметку метки
+      var pinElement = mapPinTemplate.cloneNode(true);
+
+      pinElement.style = 'left: ' + (offers[i].location.x - PIN_WIDTH / 2) + 'px; top: ' + (pin.location.y - PIN_HEIGHT) + 'px;';
+      pinElement.querySelector('img').src = pin.author.avatar;
+      pinElement.querySelector('img').alt = pin.offer.title;
+
+      return pinElement;
+    };
+
+    // Фрагмент, в который добавляем все метки перед отприсовкой на странице
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < offers.length; i++) {
+      fragment.appendChild(renderPin(offers[i]));
+    }
+
+    mapPinsElement.appendChild(fragment);
+
+    var adRoomsNumber = form.querySelector('#room_number');
+    var adCapacity = form.querySelector('#capacity');
+
+    // Валидирует поле выбора кол-ва гостей
+    var validateAdCapacity = function () {
+      switch (adRoomsNumber.value) {
+        case '1':
+          if (adCapacity.value === '3' || adCapacity.value === '2' || adCapacity.value === '0') {
+            adCapacity.setCustomValidity('В 1 комнате может быть размещен только 1 человек');
+          } else {
+            adCapacity.setCustomValidity('');
+          }
+          break;
+        case '2':
+          if (adCapacity.value === '3' || adCapacity.value === '0') {
+            adCapacity.setCustomValidity('В 2 комнатах могут быть размещены максимум 2 человека');
+          } else {
+            adCapacity.setCustomValidity('');
+          }
+          break;
+        case '3':
+          if (adCapacity.value === '0') {
+            adCapacity.setCustomValidity('В 3 комнатах могут быть размещены максимум 3 человека');
+          } else {
+            adCapacity.setCustomValidity('');
+          }
+          break;
+        case '100':
+          if (adCapacity.value !== '0') {
+            adCapacity.setCustomValidity('100 комнат это не для гостей');
+          } else {
+            adCapacity.setCustomValidity('');
+          }
+      }
+    };
+
+    // Валидируем кол-во гостей еще до взаимодействия с формой
+    validateAdCapacity();
+
+    // Как только убирается фокус с поля выбора кол-ва гостей - валидируем поле
+    adCapacity.addEventListener('focusout', function () {
+      validateAdCapacity();
+    });
+
+    // Как только убирается фокус с поля выбора кол-ва комнаты - валидируем кол-во гостей
+    adRoomsNumber.addEventListener('focusout', function () {
+      validateAdCapacity();
+    });
+  };
+
+  mainMapPin.addEventListener('mousedown', function (evt) {
+    if (evt.button === 0) {
+      activateMap();
+      insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
+    }
+  });
+
+  mainMapPin.addEventListener('keydown', function (evt) {
+    if (evt.key === 'Enter') {
+      activateMap();
+      insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
+    }
+  });
 
   /**
    * Переводит тип жилья с английского на русский
@@ -391,5 +547,6 @@ window.addEventListener('DOMContentLoaded', function () {
     map.insertBefore(cardElement, filtersContainer);
   };
 
-  buildCard(offers);
+  disableMap();
+  // buildCard(offers);
 });
