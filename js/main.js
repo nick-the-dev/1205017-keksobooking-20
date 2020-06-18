@@ -64,11 +64,20 @@ var minTopPosition = 130;
 // Крайняя нижняя координата на карте
 var minBottomPosition = 630;
 
-// Ширина метки
-var pinWidth = 50;
+// Ширина метки обьявления
+var PIN_WIDTH = 50;
 
-// Высота метки
-var pinHeight = 70;
+// Высота метки обьявления
+var PIN_HEIGHT = 70;
+
+// Ширина центральной метки в неактивном состоянии
+var MAIN_PIN_UNACTIVE_WIDTH = 62;
+
+// Высота центральной метки в неактивном состоянии
+var MAIN_PIN_UNACTIVE_HEIGHT = 62;
+
+// Высота указателя центральной метки
+var MAIN_PIN_POINTER_HEIGHT = 22;
 
 /**
  * Возвращает случайный элемент из массива
@@ -223,61 +232,211 @@ var createNewOffer = function (
   };
 };
 
+var getMaxNumber = function (arr) {
+  var currentMaxNumber = 0;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] > currentMaxNumber) {
+      currentMaxNumber = arr[i];
+    }
+  }
+  return currentMaxNumber;
+};
+
 // Массив с обьявлениями
 var offers = createArrFromOffers(offersToShow);
 
 // Выполняет код после загрузки DOM
 window.addEventListener('DOMContentLoaded', function () {
-  // Удаляем класс .map--faded у элемента с классом .map
-  document.querySelector('.map').classList.remove('map--faded');
-
-  // Элемент списка меток на карте
-  var mapPinsElement = document.querySelector('.map__pins');
-
   // Шаблон метки
   var mapPinTemplate = document
     .querySelector('#pin')
     .content
     .querySelector('.map__pin');
 
-  /**
-   * Отображает метку на карте на основе обьекта обьявления
-   *
-   * @param {Object} pin Обьект обьявления
-   * @return {Node} Возвращает разметку метки
-   */
-  var renderPin = function (pin) {
-    // Содержит разметку метки
-    var pinElement = mapPinTemplate.cloneNode(true);
-
-    pinElement.style = 'left: ' + (offers[i].location.x - pinWidth / 2) + 'px; top: ' + (pin.location.y - pinHeight) + 'px;';
-    pinElement.querySelector('img').src = pin.author.avatar;
-    pinElement.querySelector('img').alt = pin.offer.title;
-
-    return pinElement;
-  };
-
-  // Фрагмент, в который добавляем все метки перед отприсовкой на странице
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 0; i < offers.length; i++) {
-    fragment.appendChild(renderPin(offers[i]));
-  }
-
-  mapPinsElement.appendChild(fragment);
-
   // Шаблон карточки обьявления
-  var cardTemplate = document
+  /* var cardTemplate = document
     .querySelector('#card')
     .content
-    .querySelector('.map__card');
+    .querySelector('.map__card'); */
+
+  // Элемент списка меток на карте
+  var mapPinsElement = document.querySelector('.map__pins');
+
+  // Центральная метка (триггер активации карты);
+  var mainMapPin = mapPinsElement.querySelector('.map__pin--main');
+
+  // Форма обьявления
+  var form = document.querySelector('.ad-form');
+
+  // Поля для заполнения в форме обьявления
+  var formInputs = form.querySelectorAll('input, select, textarea');
+
+  // Форма, содержащая фильтры обьявлений
+  var mapFilters = document.querySelector('.map__filters');
+
+  // Поля фильтра обьявлений
+  var mapFiltersList = mapFilters.querySelectorAll('input, select');
+
+  // Выключает все поля, переданные в функцию как коллекция
+  var disableFields = function (elementsList) {
+    for (var i = 0; i < elementsList.length; i++) {
+      elementsList[i].setAttribute('disabled', '');
+    }
+  };
 
   /**
+   * Выдает координаты центральной метки на карте в неактивном состоянии
+   *
+   * @param {Object} pin Метка
+   * @param {number} width Ширина метки
+   * @param {number} height Высота метки
+   * @return {string} Координаты метки на карте
+   */
+  var getPinUnactiveLocation = function (pin, width, height) {
+    var locationX = parseInt(pin.style.left, 10) + Math.round(width / 2);
+    var locationY = parseInt(pin.style.top, 10) + Math.round(height / 2);
+
+    return locationX + ', ' + locationY;
+  };
+
+  /**
+   * Выдает координаты центральной метки на карте в активном состоянии
+   *
+   * @param {Object} pin Метка
+   * @param {number} width Ширина метки
+   * @param {number} height Высота метки
+   * @param {number} pointerHeight Высота указателя метки
+   * @return {string} Координаты метки на карте
+   */
+  var getPinActiveLocation = function (pin, width, height, pointerHeight) {
+    var locationX = parseInt(pin.style.left, 10) + Math.round(width / 2);
+    var locationY = parseInt(pin.style.top, 10) + height + pointerHeight;
+
+    return locationX + ', ' + locationY;
+  };
+
+  /**
+   * Вставляет координаты метки в поле адреса
+   *
+   * @param {string} location Строка с координатами метки
+   */
+  var insertPinLocation = function (location) {
+    var addressInput = document.querySelector('#address');
+
+    addressInput.value = location;
+  };
+
+  // Вставляем координаты метки в неактивном состоянии карты
+  insertPinLocation(getPinUnactiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT));
+
+  // Функция активации карты
+  var activateMap = function () {
+    // Убираем атрибут disabled у всех полей ввода в форме заполнения обьявления
+    for (var l = 0; l < formInputs.length; l++) {
+      formInputs[l].removeAttribute('disabled');
+    }
+
+    // Убираем атрибут disabled у всех полей ввода в фильтре обьявлений
+    for (var j = 0; j < mapFiltersList.length; j++) {
+      mapFiltersList[j].removeAttribute('disabled');
+    }
+
+    // Удаляем класс .map--faded у элемента с классом .map
+    document.querySelector('.map').classList.remove('map--faded');
+
+    /**
+     * Отображает метку на карте на основе обьекта обьявления
+     *
+     * @param {Object} pin Обьект обьявления
+     * @return {Node} Возвращает разметку метки
+     */
+    var renderPin = function (pin) {
+      // Содержит разметку метки
+      var pinElement = mapPinTemplate.cloneNode(true);
+
+      pinElement.style = 'left: ' + (offers[i].location.x - PIN_WIDTH / 2) + 'px; top: ' + (pin.location.y - PIN_HEIGHT) + 'px;';
+      pinElement.querySelector('img').src = pin.author.avatar;
+      pinElement.querySelector('img').alt = pin.offer.title;
+
+      return pinElement;
+    };
+
+    // Фрагмент, в который добавляем все метки перед отприсовкой на странице
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < offers.length; i++) {
+      fragment.appendChild(renderPin(offers[i]));
+    }
+
+    mapPinsElement.appendChild(fragment);
+
+    var adRoomsNumber = form.querySelector('#room_number');
+    var adCapacity = form.querySelector('#capacity');
+
+    // Хранит допустимое кол-ва гостей в зависимости от кол-ва комнат
+    var capacityOptions = {
+      1: [1],
+      2: [1, 2],
+      3: [1, 2, 3],
+      100: [0]
+    };
+
+    /**
+     * Валидирует поле выбора кол-ва гостей
+     *
+     * @param {Object} roomsNumber Поле выбора кол-ва комнат
+     * @param {Object} capacity Поле выбора кол-ва гостей
+     * @param {Object} options Возжодные варианты кол-ва гостей в комнатах
+     */
+    var validateAdCapacity = function (roomsNumber, capacity, options) {
+      // Содержит true если указанное кол-во гостей допустимо при выбранном кол-ве комнат
+      var isAllowedGuestsNumber = options[roomsNumber.value].includes(parseInt(capacity.value, 10));
+      if (!isAllowedGuestsNumber) {
+        capacity.setCustomValidity('Максимально допустимое кол-во гостей с учетом комнат: ' + getMaxNumber((options[roomsNumber.value])));
+      } else {
+        capacity.setCustomValidity('');
+      }
+    };
+
+    // Валидируем кол-во гостей еще до взаимодействия с формой
+    validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
+
+    adCapacity.addEventListener('change', function () {
+      validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
+    });
+
+    adRoomsNumber.addEventListener('change', function () {
+      validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
+    });
+  };
+
+  var activateForm = function () {
+    document.querySelector('.ad-form').classList.remove('ad-form--disabled');
+  };
+
+  mainMapPin.addEventListener('mousedown', function (evt) {
+    if (evt.button === 0) {
+      activateMap();
+      activateForm();
+      insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
+    }
+  });
+
+  mainMapPin.addEventListener('keydown', function (evt) {
+    if (evt.key === 'Enter') {
+      activateMap();
+      activateForm();
+      insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
+    }
+  });
+
+  /*
+  /!**
    * Переводит тип жилья с английского на русский
    *
    * @param {string} type Тип жилья на английском
    * @return {string} Тип жилья на русском
-   */
+   *!/
   var translateOfferType = function (type) {
     switch (type) {
       case 'flat':
@@ -290,12 +449,12 @@ window.addEventListener('DOMContentLoaded', function () {
     return 'Дворец';
   };
 
-  /**
+  /!**
    * Добавляет особенности жилья на карточку обьявления
    *
    * @param {Array} features Список особенностей жилья
    * @param {Object} card Карточка обьявления
-   */
+   *!/
   var addFeaturesToCard = function (features, card) {
     var featuresList = card.querySelector('.popup__features');
     var wifi = '<li class="popup__feature popup__feature--wifi"></li>';
@@ -334,12 +493,12 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  /**
+  /!**
    * Вставляет фотографии обьявления из массива в карточку обьявления
    *
    * @param {Array} photos Массив с фотографиями обьявления
    * @param {Object} card Карточка обьявления
-   */
+   *!/
   var addPhotosToCard = function (photos, card) {
     // Содержит родительский элемент фотографий в карточке
     var photosList = card.querySelector('.popup__photos');
@@ -361,11 +520,11 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  /**
+  /!**
    * Создает карточку обьявления на основе шаблона в HTML
    *
    * @param {Array} arr Массив со всеми обьявлениями
-   */
+   *!/
   var buildCard = function (arr) {
     // Содержит первый элемент массива с обьявлениями
     var firstCard = arr[0];
@@ -389,7 +548,13 @@ window.addEventListener('DOMContentLoaded', function () {
     cardElement.querySelector('.popup__avatar').src = firstCard.author.avatar;
 
     map.insertBefore(cardElement, filtersContainer);
-  };
+  };*/
 
-  buildCard(offers);
+  // Выключаем поля в фильтре обьявлений при загрузке страницы
+  disableFields(mapFiltersList);
+
+  // Выключаем поля формы при загрузке страницы
+  disableFields(formInputs);
+
+  // buildCard(offers);
 });
