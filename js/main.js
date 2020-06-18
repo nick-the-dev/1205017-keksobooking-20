@@ -410,9 +410,14 @@ window.addEventListener('DOMContentLoaded', function () {
     });
   };
 
+  var activateForm = function () {
+    document.querySelector('.ad-form').classList.remove('ad-form--disabled');
+  };
+
   mainMapPin.addEventListener('mousedown', function (evt) {
     if (evt.button === 0) {
       activateMap();
+      activateForm();
       insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
     }
   });
@@ -420,6 +425,7 @@ window.addEventListener('DOMContentLoaded', function () {
   mainMapPin.addEventListener('keydown', function (evt) {
     if (evt.key === 'Enter') {
       activateMap();
+      activateForm();
       insertPinLocation(getPinActiveLocation(mainMapPin, MAIN_PIN_UNACTIVE_WIDTH, MAIN_PIN_UNACTIVE_HEIGHT, MAIN_PIN_POINTER_HEIGHT));
     }
   });
