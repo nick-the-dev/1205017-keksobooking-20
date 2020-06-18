@@ -232,6 +232,16 @@ var createNewOffer = function (
   };
 };
 
+var getMaxNumber = function (arr) {
+  var currentMaxNumber = 0;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] > currentMaxNumber) {
+      currentMaxNumber = arr[i];
+    }
+  }
+  return currentMaxNumber;
+};
+
 // Массив с обьявлениями
 var offers = createArrFromOffers(offersToShow);
 
@@ -267,14 +277,10 @@ window.addEventListener('DOMContentLoaded', function () {
   // Поля фильтра обьявлений
   var mapFiltersList = mapFilters.querySelectorAll('input, select');
 
-  // Выключает все поля ввода у формы
-  var disableMap = function () {
-    for (var i = 0; i < formInputs.length; i++) {
-      formInputs[i].setAttribute('disabled', '');
-    }
-
-    for (var j = 0; j < mapFiltersList.length; j++) {
-      mapFiltersList[j].setAttribute('disabled', '');
+  // Выключает все поля, переданные в функцию как коллекция
+  var disableFields = function (elementsList) {
+    for (var i = 0; i < elementsList.length; i++) {
+      elementsList[i].setAttribute('disabled', '');
     }
   };
 
@@ -367,50 +373,40 @@ window.addEventListener('DOMContentLoaded', function () {
     var adRoomsNumber = form.querySelector('#room_number');
     var adCapacity = form.querySelector('#capacity');
 
-    // Валидирует поле выбора кол-ва гостей
-    var validateAdCapacity = function () {
-      switch (adRoomsNumber.value) {
-        case '1':
-          if (adCapacity.value === '3' || adCapacity.value === '2' || adCapacity.value === '0') {
-            adCapacity.setCustomValidity('В 1 комнате может быть размещен только 1 человек');
-          } else {
-            adCapacity.setCustomValidity('');
-          }
-          break;
-        case '2':
-          if (adCapacity.value === '3' || adCapacity.value === '0') {
-            adCapacity.setCustomValidity('В 2 комнатах могут быть размещены максимум 2 человека');
-          } else {
-            adCapacity.setCustomValidity('');
-          }
-          break;
-        case '3':
-          if (adCapacity.value === '0') {
-            adCapacity.setCustomValidity('В 3 комнатах могут быть размещены максимум 3 человека');
-          } else {
-            adCapacity.setCustomValidity('');
-          }
-          break;
-        case '100':
-          if (adCapacity.value !== '0') {
-            adCapacity.setCustomValidity('100 комнат это не для гостей');
-          } else {
-            adCapacity.setCustomValidity('');
-          }
+    // Хранит допустимое кол-ва гостей в зависимости от кол-ва комнат
+    var capacityOptions = {
+      1: [1],
+      2: [1, 2],
+      3: [1, 2, 3],
+      100: [0]
+    };
+
+    /**
+     * Валидирует поле выбора кол-ва гостей
+     *
+     * @param {Object} roomsNumber Поле выбора кол-ва комнат
+     * @param {Object} capacity Поле выбора кол-ва гостей
+     * @param {Object} options Возжодные варианты кол-ва гостей в комнатах
+     */
+    var validateAdCapacity = function (roomsNumber, capacity, options) {
+      // Содержит true если указанное кол-во гостей допустимо при выбранном кол-ве комнат
+      var isAllowedGuestsNumber = options[roomsNumber.value].includes(parseInt(capacity.value, 10));
+      if (!isAllowedGuestsNumber) {
+        capacity.setCustomValidity('Максимально допустимое кол-во гостей с учетом комнат: ' + getMaxNumber((options[roomsNumber.value])));
+      } else {
+        capacity.setCustomValidity('');
       }
     };
 
     // Валидируем кол-во гостей еще до взаимодействия с формой
-    validateAdCapacity();
+    validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
 
-    // Как только убирается фокус с поля выбора кол-ва гостей - валидируем поле
-    adCapacity.addEventListener('focusout', function () {
-      validateAdCapacity();
+    adCapacity.addEventListener('change', function () {
+      validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
     });
 
-    // Как только убирается фокус с поля выбора кол-ва комнаты - валидируем кол-во гостей
-    adRoomsNumber.addEventListener('focusout', function () {
-      validateAdCapacity();
+    adRoomsNumber.addEventListener('change', function () {
+      validateAdCapacity(adRoomsNumber, adCapacity, capacityOptions);
     });
   };
 
@@ -548,6 +544,11 @@ window.addEventListener('DOMContentLoaded', function () {
     map.insertBefore(cardElement, filtersContainer);
   };*/
 
-  disableMap();
+  // Выключаем поля в фильтре обьявлений при загрузке страницы
+  disableFields(mapFiltersList);
+
+  // Выключаем поля формы при загрузке страницы
+  disableFields(formInputs);
+
   // buildCard(offers);
 });
