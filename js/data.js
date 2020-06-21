@@ -79,19 +79,19 @@
   ];
 
   // Колличество обьявлений для вывода в массив
-  var offersToShow = 8;
+  var OFFERS_TO_SHOW = 8;
 
   // Крайняя левая координата на карте
-  var minLeftPosition = 100;
+  var MIN_LEFT_POSITION = 100;
 
   // Крайняя правая координата на карте
-  var minRightPosition = 1100;
+  var MIN_RIGHT_POSITION = 1100;
 
   // Крайняя верхняя координата на карте
-  var minTopPosition = 130;
+  var MIN_TOP_POSITION = 130;
 
   // Крайняя нижняя координата на карте
-  var minBottomPosition = 630;
+  var MIN_BOTTOM_POSITION = 630;
 
   /**
    * Создает массив с обьявлениями в виде обьектов
@@ -115,10 +115,10 @@
           offerFeatures,
           offerDescriptions,
           offerPhotos,
-          minLeftPosition,
-          minRightPosition,
-          minTopPosition,
-          minBottomPosition
+          MIN_LEFT_POSITION,
+          MIN_RIGHT_POSITION,
+          MIN_TOP_POSITION,
+          MIN_BOTTOM_POSITION
       ));
     }
     return arr;
@@ -190,7 +190,7 @@
   };
 
   // Массив с обьявлениями
-  var offers = createArrFromOffers(offersToShow);
+  var offers = createArrFromOffers(OFFERS_TO_SHOW);
 
   // Хранит допустимое кол-ва гостей в зависимости от кол-ва комнат
   var capacityOptions = {

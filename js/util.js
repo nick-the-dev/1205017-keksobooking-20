@@ -42,7 +42,7 @@
    * Создает рандомно отсортированный массив случайной длинны из другого массива
    *
    * @param {Array} arr Оригинальный массив
-   * @return {[]} Новый массив
+   * @return {Array} Новый массив
    */
   var getRandomArrFromArr = function (arr) {
     var newArr = [];
