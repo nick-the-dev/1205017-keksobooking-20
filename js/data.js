@@ -15,10 +15,28 @@
   ];
 
   // Заголовки обьявлений
-  var offerTitles = ['Title 1', 'Title 2', 'Title 3', 'Title 4', 'Title 5', 'Title 6', 'Title 7', 'Title 8'];
+  var offerTitles = [
+    'Title 1',
+    'Title 2',
+    'Title 3',
+    'Title 4',
+    'Title 5',
+    'Title 6',
+    'Title 7',
+    'Title 8'
+  ];
 
   // Адреса обьявлений
-  var offerAddresses = ['800, 100', '700, 200', '600, 300', '500, 400', '400, 500', '300, 600', '200, 700', '100, 800'];
+  var offerAddresses = [
+    '800, 100',
+    '700, 200',
+    '600, 300',
+    '500, 400',
+    '400, 500',
+    '300, 600',
+    '200, 700',
+    '100, 800'
+  ];
 
   // Цены обьявлений
   var offerPrices = [100, 200, 300, 400, 500, 600, 700, 800];
@@ -42,7 +60,16 @@
   var offerFeatures = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 
   // Описания обьявлений
-  var offerDescriptions = ['desc1', 'desc2', 'desc3', 'desc4', 'desc5', 'desc6', 'desc7', 'desc8'];
+  var offerDescriptions = [
+    'desc1',
+    'desc2',
+    'desc3',
+    'desc4',
+    'desc5',
+    'desc6',
+    'desc7',
+    'desc8'
+  ];
 
   // Фото обьявлений
   var offerPhotos = [
@@ -75,7 +102,24 @@
   var createArrFromOffers = function (numOfOffers) {
     var arr = [];
     for (var i = 0; i < numOfOffers; i++) {
-      arr.push(createNewOffer(authorAvatars, offerTitles, offerAddresses, offerPrices, offerTypes, offerRooms, offerGuests, offerCheckins, offerCheckouts, offerFeatures, offerDescriptions, offerPhotos, minLeftPosition, minRightPosition, minTopPosition, minBottomPosition));
+      arr.push(createNewOffer(
+          authorAvatars,
+          offerTitles,
+          offerAddresses,
+          offerPrices,
+          offerTypes,
+          offerRooms,
+          offerGuests,
+          offerCheckins,
+          offerCheckouts,
+          offerFeatures,
+          offerDescriptions,
+          offerPhotos,
+          minLeftPosition,
+          minRightPosition,
+          minTopPosition,
+          minBottomPosition
+      ));
     }
     return arr;
   };

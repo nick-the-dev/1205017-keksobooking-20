@@ -16,5 +16,5 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // window.card.buildCard(window.data.offers);
+  window.card.buildCard(window.data.offers);
 });
