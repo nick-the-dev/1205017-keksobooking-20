@@ -189,8 +189,8 @@
     };
   };
 
-  // Массив с обьявлениями
-  var offers = createArrFromOffers(OFFERS_TO_SHOW);
+  // Обьект с обьявлениями
+  var offers;
 
   // Хранит допустимое кол-ва гостей в зависимости от кол-ва комнат
   var capacityOptions = {
