@@ -95,11 +95,6 @@
     window.util.error = message;
   };
 
-  var onSuccess = function (data) {
-    window.data.offers = data;
-    window.card.buildCard(window.data.offers);
-  };
-
   window.util = {
     getRandomData: getRandomData,
     getRandomNumber: getRandomNumber,
@@ -107,8 +102,7 @@
     getRandomArrFromArr: getRandomArrFromArr,
     getUniqueValue: getUniqueValue,
     getMaxNumber: getMaxNumber,
-    onError: onError,
-    onSuccess: onSuccess
+    onError: onError
   };
 
 })();

@@ -1,6 +1,9 @@
 'use strict';
 
-window.load('https://javascript.pages.academy/keksobooking/data', window.util.onSuccess, window.util.onError);
+window.load('https://javascript.pages.academy/keksobooking/data', function (data) {
+  window.data.offers = data;
+  window.card.buildCard(window.data.offers);
+}, window.util.onError);
 
 // Выполняет код после загрузки DOM
 window.addEventListener('DOMContentLoaded', function () {
