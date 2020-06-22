@@ -91,13 +91,18 @@
     return currentMaxNumber;
   };
 
+  var onError = function (message) {
+    window.util.error = message;
+  };
+
   window.util = {
     getRandomData: getRandomData,
     getRandomNumber: getRandomNumber,
     isExistInArray: isExistInArray,
     getRandomArrFromArr: getRandomArrFromArr,
     getUniqueValue: getUniqueValue,
-    getMaxNumber: getMaxNumber
+    getMaxNumber: getMaxNumber,
+    onError: onError
   };
 
 })();

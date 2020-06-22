@@ -1,5 +1,10 @@
 'use strict';
 
+window.load('https://javascript.pages.academy/keksobooking/data', function (data) {
+  window.data.offers = data;
+  window.card.buildCard(window.data.offers);
+}, window.util.onError);
+
 // Выполняет код после загрузки DOM
 window.addEventListener('DOMContentLoaded', function () {
   window.pin.mainMapPin.addEventListener('mousedown', function (evt) {
@@ -15,6 +20,4 @@ window.addEventListener('DOMContentLoaded', function () {
       window.form.insertPinLocation(window.pin.getPinActiveLocation(window.pin.mainMapPin, window.pin.mainPinUnactiveWidth, window.pin.mainPinUnactiveHeight, window.pin.mainPinPointerHeight));
     }
   });
-
-  window.card.buildCard(window.data.offers);
 });

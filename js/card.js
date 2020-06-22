@@ -98,13 +98,13 @@
     };
 
     /**
-     * Создает карточку обьявления на основе шаблона в HTML
+     * Создает карточку обьявления на основе принятого с сервера обьекта
      *
-     * @param {Array} arr Массив со всеми обьявлениями
+     * @param {Object} obj Обьект со всеми обьявлениями
      */
-    var buildCard = function (arr) {
-      // Содержит первый элемент массива с обьявлениями
-      var firstCard = arr[0];
+    var buildCard = function (obj) {
+      // Содержит первый элемент обьекта с обьявлениями
+      var firstCard = obj[0];
 
       // Содержит разметку карточки обьявления
       var cardElement = cardTemplate.cloneNode(true);
