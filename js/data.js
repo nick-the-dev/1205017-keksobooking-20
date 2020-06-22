@@ -2,7 +2,7 @@
 
 (function () {
 
-  // Аватары пользователей
+  /* // Аватары пользователей
   var authorAvatars = [
     'img/avatars/user01.png',
     'img/avatars/user02.png',
@@ -93,13 +93,13 @@
   // Крайняя нижняя координата на карте
   var MIN_BOTTOM_POSITION = 630;
 
-  /**
+  /!**
    * Создает массив с обьявлениями в виде обьектов
    *
    * @param {number} numOfOffers Колличество обьявлений, которое нужно добавить в массив
    * @return {[]}
-   */
-  var createArrFromOffers = function (numOfOffers) {
+   *!/
+    var createArrFromOffers = function (numOfOffers) {
     var arr = [];
     for (var i = 0; i < numOfOffers; i++) {
       arr.push(createNewOffer(
@@ -124,7 +124,7 @@
     return arr;
   };
 
-  /**
+  /!**
    * Собирает обьявление по шаблону
    *
    * @param {Array} avatars Аватарки авторов обьявлений
@@ -144,7 +144,7 @@
    * @param {number} minTopPos Минимальная позиция сверху на карте
    * @param {number} minBottomPos Минимальная позиция снизу на карте
    * @return {Object}
-   */
+   *!/
   var createNewOffer = function (
       avatars,
       titles,
@@ -187,7 +187,7 @@
         'y': window.util.getRandomNumber(minTopPos, minBottomPos)
       }
     };
-  };
+  }; */
 
   // Обьект с обьявлениями
   var offers;

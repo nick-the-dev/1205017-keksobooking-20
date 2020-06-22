@@ -92,7 +92,7 @@
   };
 
   var onError = function (message) {
-    console.error(message);
+    window.util.error = message;
   };
 
   var onSuccess = function (data) {
