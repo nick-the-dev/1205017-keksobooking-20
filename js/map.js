@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  // Максимальное кол-во меток, которое можно отобразить на карте
+  var MAX_OFFERS_TO_SHOW = 5;
 
   window.addEventListener('DOMContentLoaded', function () {
     // Форма, содержащая фильтры обьявлений
@@ -8,6 +10,9 @@
 
     // Поля фильтра обьявлений
     var mapFiltersList = mapFilters.querySelectorAll('input, select');
+
+    // Фильтр по типу жилья
+    var typeFilter = mapFilters.querySelector('#housing-type');
 
     /**
      * Убирает атрибут disabled у всех полей ввода в фильтре обьявлений
@@ -44,12 +49,60 @@
      */
     var addPinsToMap = function (offers) {
       var fragment = document.createDocumentFragment();
+      var quantityToShow = MAX_OFFERS_TO_SHOW;
+      if (offers.length < MAX_OFFERS_TO_SHOW) {
+        quantityToShow = offers.length;
+      }
 
-      for (var i = 0; i < offers.length; i++) {
+      for (var i = 0; i < quantityToShow; i++) {
         fragment.appendChild(renderPin(offers[i]));
       }
 
       window.pin.mapPinsElement.appendChild(fragment);
+    };
+
+    // Удаляет все метки кроме главной
+    var removeAllPins = function () {
+      var pins = window.pin.mapPinsElement.querySelectorAll('.map__pin');
+      var mainPinClass = 'map__pin--main';
+
+      pins.forEach(function (pin) {
+        if (!pin.classList.contains(mainPinClass)) {
+          pin.parentNode.removeChild(pin);
+        }
+      });
+    };
+
+    // Удаляет открытую карточку с карты
+    var removeOpenedCard = function () {
+      var card = document.querySelector('.map__card');
+      if (card !== null) {
+        card.parentNode.removeChild(card);
+      }
+    };
+
+    // Отрисовывает на карте только те метки, значение которых совпадает с выбранным в фильтре по типу жилья
+    var filterOfferByType = function () {
+      var currentValue = typeFilter.value;
+      var defaultValue = 'any';
+      var filteredOffers = [];
+      var counter = 0;
+      var offers = window.data.offers;
+
+      removeAllPins();
+      removeOpenedCard();
+
+      for (var i = 0; i < offers.length; i++) {
+        if ((offers[i].offer.type === currentValue) && (counter < MAX_OFFERS_TO_SHOW)) {
+          filteredOffers.push(offers[i]);
+          counter += 1;
+        } else if (currentValue === defaultValue) {
+          filteredOffers = offers;
+          break;
+        }
+      }
+
+      addPinsToMap(filteredOffers);
     };
 
     // Функция активации карты
@@ -59,9 +112,6 @@
 
       // Активируем саму форму создания обьявления
       window.form.activateForm(window.form.formElement);
-
-      // Активируем фильтры обьявлений на крате
-      activateMapFilters(window.map.mapFiltersList);
 
       // Удаляем класс .map--faded у элемента с классом .map
       document.querySelector('.map').classList.remove('map--faded');
@@ -80,6 +130,9 @@
       window.form.adCapacity.addEventListener('change', function () {
         window.data.validateAdCapacity(window.form.adRoomsNumber, window.form.adCapacity, window.data.capacityOptions);
       });
+
+      // Вызывает функцию фильтрации при смене значени фильтра по типу жилья
+      typeFilter.addEventListener('change', filterOfferByType);
     };
 
     // Вставляем координаты метки в неактивном состоянии карты
@@ -93,7 +146,8 @@
 
     window.map = {
       mapFiltersList: mapFiltersList,
-      activateMap: activateMap
+      activateMap: activateMap,
+      activateMapFilters: activateMapFilters
     };
   });
 

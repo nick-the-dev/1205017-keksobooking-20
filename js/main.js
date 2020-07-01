@@ -2,6 +2,7 @@
 
 window.load('https://javascript.pages.academy/keksobooking/data', function (data) {
   window.data.offers = data;
+  window.map.activateMapFilters(window.map.mapFiltersList);
   window.card.buildCard(window.data.offers);
 }, window.util.onError);
 
