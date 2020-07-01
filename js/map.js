@@ -86,20 +86,18 @@
       var currentValue = typeFilter.value;
       var defaultValue = 'any';
       var filteredOffers = [];
-      var counter = 0;
       var offers = window.data.offers;
 
       removeAllPins();
       removeOpenedCard();
 
-      for (var i = 0; i < offers.length; i++) {
-        if ((offers[i].offer.type === currentValue) && (counter < MAX_OFFERS_TO_SHOW)) {
-          filteredOffers.push(offers[i]);
-          counter += 1;
-        } else if (currentValue === defaultValue) {
-          filteredOffers = offers;
-          break;
-        }
+      if (currentValue === defaultValue) {
+        filteredOffers = offers;
+      } else {
+        filteredOffers = offers.
+        filter(function (offer) {
+          return currentValue === offer.offer.type;
+        });
       }
 
       addPinsToMap(filteredOffers);
