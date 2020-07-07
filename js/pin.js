@@ -61,6 +61,20 @@
       return locationX + ', ' + locationY;
     };
 
+    var onMainPinMousedown = function (evt) {
+      if (evt.button === 0) {
+        window.map.activateMap();
+        window.form.insertPinLocation(window.pin.getPinActiveLocation(window.pin.mainMapPin, window.pin.mainPinUnactiveWidth, window.pin.mainPinUnactiveHeight, window.pin.mainPinPointerHeight));
+      }
+    };
+
+    var onMainPinKeydown = function (evt) {
+      if (evt.key === 'Enter') {
+        window.map.activateMap();
+        window.form.insertPinLocation(window.pin.getPinActiveLocation(window.pin.mainMapPin, window.pin.mainPinUnactiveWidth, window.pin.mainPinUnactiveHeight, window.pin.mainPinPointerHeight));
+      }
+    };
+
     window.pin = {
       pinWidth: PIN_WIDTH,
       pinHeight: PIN_HEIGHT,
@@ -71,7 +85,9 @@
       mapPinsElement: mapPinsElement,
       mainMapPin: mainMapPin,
       getPinUnactiveLocation: getPinUnactiveLocation,
-      getPinActiveLocation: getPinActiveLocation
+      getPinActiveLocation: getPinActiveLocation,
+      onMainPinMousedown: onMainPinMousedown,
+      onMainPinKeydown: onMainPinKeydown
     };
   });
 })();
