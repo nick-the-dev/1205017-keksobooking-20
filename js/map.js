@@ -112,6 +112,13 @@
       window.card.buildCard(currentPinObject);
     };
 
+    var onPinKeydown = function (evt, currentPinObject) {
+      if (evt.key === 'Enter') {
+        window.card.removeCard();
+        window.card.buildCard(currentPinObject);
+      }
+    };
+
     // Функция активации карты
     var activateMap = function () {
       // Активируем поля формы создания обьявления
@@ -138,6 +145,15 @@
         window.data.validateAdCapacity(window.form.adRoomsNumber, window.form.adCapacity, window.data.capacityOptions);
       });
 
+      // Устанавливаем минимальное значение цены для текущего типа жилья
+      window.form.setPriceForType();
+
+      // Меняем минимальное значение цены для выбранного типа жилья при его изменении
+      window.form.formType.addEventListener('change', window.form.setPriceForType);
+
+      window.form.checkinTime.addEventListener('change', window.form.validateTime.bind('null', window.form.checkinTime, window.form.checkoutTime));
+      window.form.checkoutTime.addEventListener('change', window.form.validateTime.bind('null', window.form.checkoutTime, window.form.checkinTime));
+
       var currentPins;
 
       // Собирает массив обьектов для текущих меток на карте, не считая главной метки
@@ -158,6 +174,7 @@
       var generatePinEventListener = function () {
         for (var i = 0; i < currentPins.length; i++) {
           currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i]));
+          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i]));
         }
       };
 

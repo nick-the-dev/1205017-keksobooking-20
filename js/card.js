@@ -99,8 +99,20 @@
 
     var map = document.querySelector('.map');
 
+    var onCardCloseMousedown = function (evt) {
+      if (evt.button === 0) {
+        removeCard();
+      }
+    };
+
+    var onCardCloseKeydown = function (evt) {
+      if (evt.key === 'Escape') {
+        removeCard();
+      }
+    };
+
     /**
-     * Создает карточку обьявления на основе принятого с сервера обьекта
+     * Создает карточку обьявления на основе обьекта
      *
      * @param {Object} obj Обьект обьявления
      */
@@ -122,12 +134,17 @@
       cardElement.querySelector('.popup__avatar').src = obj.author.avatar;
 
       map.insertBefore(cardElement, filtersContainer);
+      var card = map.querySelector('.map__card');
+      card.addEventListener('mousedown', onCardCloseMousedown);
+      document.addEventListener('keydown', onCardCloseKeydown);
     };
 
     // Удаляет карточку обьявления с карты
     var removeCard = function () {
       var card = map.querySelector('.map__card');
       if (card !== null) {
+        card.removeEventListener('mousedown', onCardCloseMousedown);
+        document.removeEventListener('keydown', onCardCloseKeydown);
         card.parentNode.removeChild(card);
       }
     };
