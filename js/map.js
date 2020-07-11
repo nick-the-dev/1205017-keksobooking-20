@@ -4,6 +4,9 @@
   // Максимальное кол-во меток, которое можно отобразить на карте
   var MAX_OFFERS_TO_SHOW = 5;
 
+  //  Хранит в себе обьекты текущих обьявлений, отображенных на карте
+  var currentOffersOnMap = [];
+
   window.addEventListener('DOMContentLoaded', function () {
     // Форма, содержащая фильтры обьявлений
     var mapFilters = document.querySelector('.map__filters');
@@ -54,8 +57,11 @@
         quantityToShow = offers.length;
       }
 
+      currentOffersOnMap = [];
+
       for (var i = 0; i < quantityToShow; i++) {
         fragment.appendChild(renderPin(offers[i]));
+        currentOffersOnMap.push(offers[i]);
       }
 
       window.pin.mapPinsElement.appendChild(fragment);
@@ -73,23 +79,15 @@
       });
     };
 
-    // Удаляет открытую карточку с карты
-    var removeOpenedCard = function () {
-      var card = document.querySelector('.map__card');
-      if (card !== null) {
-        card.parentNode.removeChild(card);
-      }
-    };
-
     // Отрисовывает на карте только те метки, значение которых совпадает с выбранным в фильтре по типу жилья
-    var filterOfferByType = function () {
+    var filterOfferByType = function (extendedActions) {
       var currentValue = typeFilter.value;
       var defaultValue = 'any';
       var filteredOffers = [];
       var offers = window.data.offers;
 
       removeAllPins();
-      removeOpenedCard();
+      window.card.removeCard();
 
       if (currentValue === defaultValue) {
         filteredOffers = offers;
@@ -101,6 +99,24 @@
       }
 
       addPinsToMap(filteredOffers);
+
+      // В случае если приняли параметр - выполнить как функцию
+      if (extendedActions !== undefined) {
+        extendedActions();
+      }
+    };
+
+    // Функция-обработчик для события нажатия на метку карты
+    var onPinClick = function (currentPinObject) {
+      window.card.removeCard();
+      window.card.buildCard(currentPinObject);
+    };
+
+    var onPinKeydown = function (evt, currentPinObject) {
+      if (evt.key === 'Enter') {
+        window.card.removeCard();
+        window.card.buildCard(currentPinObject);
+      }
     };
 
     // Функция активации карты
@@ -129,8 +145,52 @@
         window.data.validateAdCapacity(window.form.adRoomsNumber, window.form.adCapacity, window.data.capacityOptions);
       });
 
-      // Вызывает функцию фильтрации при смене значени фильтра по типу жилья
-      typeFilter.addEventListener('change', filterOfferByType);
+      // Устанавливаем минимальное значение цены для текущего типа жилья
+      window.form.setPriceForType();
+
+      // Меняем минимальное значение цены для выбранного типа жилья при его изменении
+      window.form.formType.addEventListener('change', window.form.setPriceForType);
+
+      window.form.checkinTime.addEventListener('change', window.form.validateTime.bind('null', window.form.checkinTime, window.form.checkoutTime));
+      window.form.checkoutTime.addEventListener('change', window.form.validateTime.bind('null', window.form.checkoutTime, window.form.checkinTime));
+
+      var currentPins;
+
+      // Собирает массив обьектов для текущих меток на карте, не считая главной метки
+      var getCurrentPins = function () {
+        currentPins = [];
+        var pinsCollection = document.querySelectorAll('.map__pin');
+
+        for (var i = 0; i < pinsCollection.length; i++) {
+          if (!pinsCollection[i].classList.contains('map__pin--main')) {
+            currentPins.push(pinsCollection[i]);
+          }
+        }
+      };
+
+      getCurrentPins();
+
+      // Создает обработчик события клика на каждой метке на карте
+      var generatePinEventListener = function () {
+        for (var i = 0; i < currentPins.length; i++) {
+          currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i]));
+          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i]));
+        }
+      };
+
+      generatePinEventListener();
+
+      // Собирает массив обьектов для текущих меток на карте, не считая главной метки + создает обработчик события клика на каждой метке
+      var updatePins = function () {
+        getCurrentPins();
+        generatePinEventListener();
+      };
+
+      // Вызывает функцию фильтрации при смене значения фильтра по типу жилья
+      typeFilter.addEventListener('change', filterOfferByType.bind(null, updatePins));
+
+      window.pin.mainMapPin.removeEventListener('mousedown', window.pin.onMainPinMousedown);
+      window.pin.mainMapPin.removeEventListener('keydown', window.pin.onMainPinKeydown);
     };
 
     // Вставляем координаты метки в неактивном состоянии карты
