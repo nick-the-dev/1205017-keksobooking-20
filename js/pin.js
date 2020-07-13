@@ -61,6 +61,10 @@
       return locationX + ', ' + locationY;
     };
 
+    var getMainPinCurrentLocation = function () {
+      window.form.insertPinLocation(window.pin.getPinActiveLocation(window.pin.mainMapPin, window.pin.mainPinUnactiveWidth, window.pin.mainPinUnactiveHeight, window.pin.mainPinPointerHeight));
+    };
+
     var onMainPinMousedown = function (evt) {
       if (evt.button === 0) {
         window.map.activateMap();
@@ -87,7 +91,8 @@
       getPinUnactiveLocation: getPinUnactiveLocation,
       getPinActiveLocation: getPinActiveLocation,
       onMainPinMousedown: onMainPinMousedown,
-      onMainPinKeydown: onMainPinKeydown
+      onMainPinKeydown: onMainPinKeydown,
+      getMainPinCurrentLocation: getMainPinCurrentLocation
     };
   });
 })();
