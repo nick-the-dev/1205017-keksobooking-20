@@ -191,6 +191,23 @@
 
       window.pin.mainMapPin.removeEventListener('mousedown', window.pin.onMainPinMousedown);
       window.pin.mainMapPin.removeEventListener('keydown', window.pin.onMainPinKeydown);
+
+      window.form.formElement.addEventListener('submit', window.form.onSubmit);
+      window.form.formResetBtn.addEventListener('click', window.form.onFormReset);
+
+      window.form.insertSendStatus();
+    };
+
+    var deactivateMap = function () {
+      window.form.deactivateFields(window.form.formInputs);
+      window.form.deactivateForm(window.form.formElement);
+      document.querySelector('.map').classList.add('map--faded');
+      window.form.insertPinLocation(window.pin.getPinUnactiveLocation(window.pin.mainMapPin, window.pin.mainPinUnactiveWidth, window.pin.mainPinUnactiveHeight));
+      removeAllPins();
+      window.pin.mainMapPin.addEventListener('mousedown', window.pin.onMainPinMousedown);
+      window.pin.mainMapPin.addEventListener('keydown', window.pin.onMainPinKeydown);
+      window.form.clearForm();
+      window.card.removeCard();
     };
 
     // Вставляем координаты метки в неактивном состоянии карты
@@ -205,7 +222,8 @@
     window.map = {
       mapFiltersList: mapFiltersList,
       activateMap: activateMap,
-      activateMapFilters: activateMapFilters
+      activateMapFilters: activateMapFilters,
+      deactivateMap: deactivateMap
     };
   });
 
