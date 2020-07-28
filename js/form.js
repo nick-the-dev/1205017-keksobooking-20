@@ -148,15 +148,19 @@
       switch (window.form.formType.value) {
         case 'bungalo':
           window.form.formPrice.setAttribute('min', '0');
+          window.form.formPrice.placeholder = '0';
           break;
         case 'flat':
           window.form.formPrice.setAttribute('min', '1000');
+          window.form.formPrice.placeholder = '1000';
           break;
         case 'house':
           window.form.formPrice.setAttribute('min', '5000');
+          window.form.formPrice.placeholder = '5000';
           break;
         case 'palace':
           window.form.formPrice.setAttribute('min', '10000');
+          window.form.formPrice.placeholder = '10000';
           break;
       }
     };

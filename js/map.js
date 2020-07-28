@@ -60,8 +60,10 @@
       currentOffersOnMap = [];
 
       for (var i = 0; i < quantityToShow; i++) {
-        fragment.appendChild(renderPin(offers[i]));
-        currentOffersOnMap.push(offers[i]);
+        if (offers[i].offer !== undefined) {
+          fragment.appendChild(renderPin(offers[i]));
+          currentOffersOnMap.push(offers[i]);
+        }
       }
 
       window.pin.mapPinsElement.appendChild(fragment);
@@ -166,21 +168,41 @@
       window.updatePins();
     });
 
-    // Функция-обработчик для события нажатия на метку карты
-    var onPinClick = function (currentPinObject) {
-      window.card.removeCard();
-      window.card.buildCard(currentPinObject);
+    var removePinsActiveClass = function () {
+      var pins = document.querySelectorAll('.map__pin');
+
+      pins.forEach(function (pin) {
+        pin.classList.remove('map__pin--active');
+      });
     };
 
-    var onPinKeydown = function (evt, currentPinObject) {
+    // Функция-обработчик для события нажатия на метку карты
+    var onPinClick = function (currentPinObject, currentPinElement) {
+      window.card.removeCard();
+      window.card.buildCard(currentPinObject);
+      removePinsActiveClass();
+      currentPinElement.classList.add('map__pin--active');
+    };
+
+    var onPinKeydown = function (evt, currentPinObject, currentPinElement) {
       if (evt.key === 'Enter') {
         window.card.removeCard();
         window.card.buildCard(currentPinObject);
+        removePinsActiveClass();
+        currentPinElement.classList.add('map__pin--active');
       }
     };
 
     // Функция активации карты
     var activateMap = function () {
+      window.load('https://javascript.pages.academy/keksobooking/data', function (data) {
+        window.data.offers = data;
+        window.map.activateMapFilters(window.map.mapFiltersList);
+        addPinsToMap(window.data.offers);
+        getCurrentPins();
+        generatePinEventListener();
+      }, window.util.onError);
+
       // Активируем поля формы создания обьявления
       window.form.activateFields(window.form.formInputs);
 
@@ -189,8 +211,6 @@
 
       // Удаляем класс .map--faded у элемента с классом .map
       document.querySelector('.map').classList.remove('map--faded');
-
-      addPinsToMap(window.data.offers);
 
       // Валидируем кол-во гостей еще до взаимодействия с формой
       window.data.validateAdCapacity(window.form.adRoomsNumber, window.form.adCapacity, window.data.capacityOptions);
@@ -228,17 +248,13 @@
         }
       };
 
-      getCurrentPins();
-
       // Создает обработчик события клика на каждой метке на карте
       var generatePinEventListener = function () {
         for (var i = 0; i < currentPins.length; i++) {
-          currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i]));
-          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i]));
+          currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i], currentPins[i]));
+          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i], currentPins[i]));
         }
       };
-
-      generatePinEventListener();
 
       // Собирает массив обьектов для текущих меток на карте, не считая главной метки + создает обработчик события клика на каждой метке
       window.updatePins = function () {
