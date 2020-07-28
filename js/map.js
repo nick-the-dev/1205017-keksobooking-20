@@ -14,8 +14,8 @@
     // Поля фильтра обьявлений
     var mapFiltersList = mapFilters.querySelectorAll('input, select');
 
-    // Фильтр по типу жилья
-    var typeFilter = mapFilters.querySelector('#housing-type');
+    var mapFiltersCollection = mapFilters.querySelectorAll('.map__filter, .map__checkbox');
+    var featuresCollection = mapFilters.querySelectorAll('.map__checkbox');
 
     /**
      * Убирает атрибут disabled у всех полей ввода в фильтре обьявлений
@@ -79,32 +79,92 @@
       });
     };
 
-    // Отрисовывает на карте только те метки, значение которых совпадает с выбранным в фильтре по типу жилья
-    var filterOfferByType = function (extendedActions) {
-      var currentValue = typeFilter.value;
+    var filterOffersType = function (mapFilter, offers) {
+      offers = offers
+        .filter(function (offer) {
+          return mapFilter.value === offer.offer.type;
+        });
+
+      return offers;
+    };
+
+    var filterOffersPrice = function (mapFilter, offers) {
+      offers = offers
+        .filter(function (offer) {
+          switch (mapFilter.value) {
+            case 'low':
+              return offer.offer.price < 10000;
+            case 'middle':
+              return (offer.offer.price >= 10000) && (offer.offer.price <= 50000);
+          }
+          return offer.offer.price > 50000;
+        });
+
+      return offers;
+    };
+
+    var filterOffersRooms = function (mapFilter, offers) {
+      offers = offers
+        .filter(function (offer) {
+          return parseInt(mapFilter.value, 10) === offer.offer.rooms;
+        });
+
+      return offers;
+    };
+
+    var filterOffersGuests = function (mapFilter, offers) {
+      offers = offers
+        .filter(function (offer) {
+          return parseInt(mapFilter.value, 10) === offer.offer.guests;
+        });
+
+      return offers;
+    };
+
+    var onFilterChange = window.debounce(function () {
       var defaultValue = 'any';
-      var filteredOffers = [];
+
       var offers = window.data.offers;
+      var checkedFeatures = [];
+
+      mapFiltersCollection.forEach(function (mapFilter) {
+        if (mapFilter.value !== defaultValue) {
+          switch (mapFilter.id) {
+            case 'housing-type':
+              offers = filterOffersType(mapFilter, offers);
+              break;
+            case 'housing-price':
+              offers = filterOffersPrice(mapFilter, offers);
+              break;
+            case 'housing-rooms':
+              offers = filterOffersRooms(mapFilter, offers);
+              break;
+            case 'housing-guests':
+              offers = filterOffersGuests(mapFilter, offers);
+              break;
+          }
+        }
+      });
+
+      featuresCollection.forEach(function (feature) {
+        if (feature.checked) {
+          checkedFeatures.push(feature.value);
+        }
+      });
+
+      checkedFeatures.forEach(function (feature) {
+        offers = offers
+          .filter(function (offer) {
+            return offer.offer.features.includes(feature);
+          });
+      });
 
       removeAllPins();
       window.card.removeCard();
+      addPinsToMap(offers);
 
-      if (currentValue === defaultValue) {
-        filteredOffers = offers;
-      } else {
-        filteredOffers = offers.
-        filter(function (offer) {
-          return currentValue === offer.offer.type;
-        });
-      }
-
-      addPinsToMap(filteredOffers);
-
-      // В случае если приняли параметр - выполнить как функцию
-      if (extendedActions !== undefined) {
-        extendedActions();
-      }
-    };
+      window.updatePins();
+    });
 
     // Функция-обработчик для события нажатия на метку карты
     var onPinClick = function (currentPinObject) {
@@ -181,13 +241,14 @@
       generatePinEventListener();
 
       // Собирает массив обьектов для текущих меток на карте, не считая главной метки + создает обработчик события клика на каждой метке
-      var updatePins = function () {
+      window.updatePins = function () {
         getCurrentPins();
         generatePinEventListener();
       };
 
-      // Вызывает функцию фильтрации при смене значения фильтра по типу жилья
-      typeFilter.addEventListener('change', filterOfferByType.bind(null, updatePins));
+      mapFiltersCollection.forEach(function (filter) {
+        filter.addEventListener('change', onFilterChange);
+      });
 
       window.pin.mainMapPin.removeEventListener('mousedown', window.pin.onMainPinMousedown);
       window.pin.mainMapPin.removeEventListener('keydown', window.pin.onMainPinKeydown);

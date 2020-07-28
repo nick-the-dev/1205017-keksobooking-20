@@ -31,6 +31,7 @@
 
   window.data = {
     offers: offers,
+    filteredOffers: offers,
     capacityOptions: capacityOptions,
     validateAdCapacity: validateAdCapacity
   };
