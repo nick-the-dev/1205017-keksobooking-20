@@ -60,8 +60,10 @@
       currentOffersOnMap = [];
 
       for (var i = 0; i < quantityToShow; i++) {
-        fragment.appendChild(renderPin(offers[i]));
-        currentOffersOnMap.push(offers[i]);
+        if (offers[i].offer !== undefined) {
+          fragment.appendChild(renderPin(offers[i]));
+          currentOffersOnMap.push(offers[i]);
+        }
       }
 
       window.pin.mapPinsElement.appendChild(fragment);
@@ -166,16 +168,28 @@
       window.updatePins();
     });
 
-    // Функция-обработчик для события нажатия на метку карты
-    var onPinClick = function (currentPinObject) {
-      window.card.removeCard();
-      window.card.buildCard(currentPinObject);
+    var removePinsActiveClass = function () {
+      var pins = document.querySelectorAll('.map__pin');
+
+      pins.forEach(function (pin) {
+        pin.classList.remove('map__pin--active');
+      });
     };
 
-    var onPinKeydown = function (evt, currentPinObject) {
+    // Функция-обработчик для события нажатия на метку карты
+    var onPinClick = function (currentPinObject, currentPinElement) {
+      window.card.removeCard();
+      window.card.buildCard(currentPinObject);
+      removePinsActiveClass();
+      currentPinElement.classList.add('map__pin--active');
+    };
+
+    var onPinKeydown = function (evt, currentPinObject, currentPinElement) {
       if (evt.key === 'Enter') {
         window.card.removeCard();
         window.card.buildCard(currentPinObject);
+        removePinsActiveClass();
+        currentPinElement.classList.add('map__pin--active');
       }
     };
 
@@ -233,8 +247,8 @@
       // Создает обработчик события клика на каждой метке на карте
       var generatePinEventListener = function () {
         for (var i = 0; i < currentPins.length; i++) {
-          currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i]));
-          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i]));
+          currentPins[i].addEventListener('click', onPinClick.bind(null, currentOffersOnMap[i], currentPins[i]));
+          currentPins[i].addEventListener('keydown', onPinKeydown.bind(null, currentOffersOnMap[i], currentPins[i]));
         }
       };
 
